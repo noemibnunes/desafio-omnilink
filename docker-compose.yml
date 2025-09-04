@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.3.0
+    container_name: omnilink-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: omnilink
+    ports:
+      - "3307:3306"
+    volumes:
+      - omnilink-db-data:/var/lib/mysql
+      - ./etc/docker/omnilink-db:/etc/mysql/conf.d
+
+volumes:
+  omnilink-db-data:
