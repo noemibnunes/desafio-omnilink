@@ -9,12 +9,14 @@ import com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.UsuarioRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -22,7 +24,9 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
-@ExtendWith(MockitoExtension.class)
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 class ClienteServiceImplTest {
 
     @InjectMocks
@@ -40,21 +44,26 @@ class ClienteServiceImplTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     @DisplayName("Deve salvar um novo cliente com sucesso")
     public void deveSalvarNovoCliente() {
         ClienteCreateDTO dto = getClienteDto();
         Cliente cliente = getCliente();
 
-        Mockito.when(clienteMapper.toEntity(dto)).thenReturn(cliente);
-        Mockito.when(clienteRepository.save(Mockito.any(Cliente.class))).thenAnswer(i -> i.getArguments()[0]);
-        Mockito.when(usuarioRepository.save(Mockito.any(Usuario.class))).thenAnswer(i -> i.getArguments()[0]);
-        Mockito.when(passwordEncoder.encode(Mockito.anyString())).thenReturn("senhaHash");
+        when(clienteMapper.toEntity(dto)).thenReturn(cliente);
+        when(clienteRepository.save(Mockito.any(Cliente.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(usuarioRepository.save(Mockito.any(Usuario.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(passwordEncoder.encode(Mockito.anyString())).thenReturn("senhaHash");
 
         clienteService.criarCliente(dto);
 
-        Mockito.verify(clienteRepository, Mockito.times(2)).save(Mockito.any(Cliente.class));
-        Mockito.verify(usuarioRepository, Mockito.times(1)).save(Mockito.any(Usuario.class));
+        verify(clienteRepository, Mockito.times(2)).save(Mockito.any(Cliente.class));
+        verify(usuarioRepository, Mockito.times(1)).save(Mockito.any(Usuario.class));
 
         Assertions.assertEquals("Teste", cliente.getNome());
         Assertions.assertEquals("teste@gmail.com", cliente.getEmail());
@@ -69,15 +78,15 @@ class ClienteServiceImplTest {
 
         clienteMapper.updateClienteFromDto(cliente, dto);
 
-        Mockito.when(clienteRepository.findById(cliente.getId()))
+        when(clienteRepository.findById(cliente.getId()))
                 .thenReturn(Optional.of(cliente));
 
-        Mockito.when(clienteRepository.save(Mockito.any(Cliente.class)))
+        when(clienteRepository.save(Mockito.any(Cliente.class)))
                 .thenAnswer(i -> i.getArguments()[0]);
 
         clienteService.editarCliente(cliente.getId(), dto);
 
-        Mockito.verify(clienteRepository, Mockito.times(1)).save(cliente);
+        verify(clienteRepository, Mockito.times(1)).save(cliente);
 
         Assertions.assertEquals(dto.getNome(), cliente.getNome());
         Assertions.assertEquals(dto.getEmail(), cliente.getEmail());
@@ -99,33 +108,33 @@ class ClienteServiceImplTest {
     public void deveRetornarClienteCorrespondenteAOCPF() {
         Cliente clienteMock = getCliente();
 
-        Mockito.when(clienteRepository.findByCpf(clienteMock.getCpf()))
+        when(clienteRepository.findByCpf(clienteMock.getCpf()))
                 .thenReturn(Optional.of(clienteMock));
 
         Cliente cliente = clienteService.buscarClientePorCpf(clienteMock.getCpf());
 
         Assertions.assertEquals(clienteMock.getCpf(), cliente.getCpf());
 
-        Mockito.verify(clienteRepository, Mockito.times(1)).findByCpf(clienteMock.getCpf());
+        verify(clienteRepository, Mockito.times(1)).findByCpf(clienteMock.getCpf());
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando CPF não for encontrado")
     public void deveLancarExcecaoQuandoCPFNaoEncontrado() {
         String cpf = "999999999";
-        Mockito.when(clienteRepository.findByCpf(cpf)).thenReturn(Optional.empty());
+        when(clienteRepository.findByCpf(cpf)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(UsuarioNaoEncontradoException.class,
                 () -> clienteService.buscarClientePorCpf(cpf));
 
-        Mockito.verify(clienteRepository, Mockito.times(1)).findByCpf(cpf);
+        verify(clienteRepository, Mockito.times(1)).findByCpf(cpf);
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando o CPF já possuir cadastro")
     public void deveRetornarExceptionCPFPossuiCadastro() {
         String cpf = "123456789";
-        Mockito.when(clienteRepository.existsByCpf(cpf)).thenReturn(true);
+        when(clienteRepository.existsByCpf(cpf)).thenReturn(true);
 
         IllegalArgumentException exception = Assertions.assertThrows(
                 IllegalArgumentException.class,
@@ -140,13 +149,13 @@ class ClienteServiceImplTest {
     public void deveExcluirCliente() {
         Cliente cliente = getCliente();
 
-        Mockito.when(clienteRepository.findById(cliente.getId())).thenReturn(Optional.of(cliente));
+        when(clienteRepository.findById(cliente.getId())).thenReturn(Optional.of(cliente));
 
         clienteService.excluirCliente(cliente.getId());
 
-        Mockito.verify(clienteRepository, Mockito.times(1)).findById(cliente.getId());
-        Mockito.verify(usuarioRepository, Mockito.never()).delete(Mockito.any());
-        Mockito.verify(clienteRepository, Mockito.times(1)).delete(cliente);
+        verify(clienteRepository, Mockito.times(1)).findById(cliente.getId());
+        verify(usuarioRepository, Mockito.never()).delete(Mockito.any());
+        verify(clienteRepository, Mockito.times(1)).delete(cliente);
     }
 
 
@@ -155,14 +164,14 @@ class ClienteServiceImplTest {
     public void deveLancarExcecaoAoExcluirClienteInexistente() {
         UUID idCliente = UUID.randomUUID();
 
-        Mockito.when(clienteRepository.findById(idCliente)).thenReturn(Optional.empty());
+        when(clienteRepository.findById(idCliente)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(UsuarioNaoEncontradoException.class,
                 () -> clienteService.excluirCliente(idCliente));
 
-        Mockito.verify(clienteRepository, Mockito.times(1)).findById(idCliente);
-        Mockito.verify(usuarioRepository, Mockito.never()).delete(Mockito.any());
-        Mockito.verify(clienteRepository, Mockito.never()).delete(Mockito.any());
+        verify(clienteRepository, Mockito.times(1)).findById(idCliente);
+        verify(usuarioRepository, Mockito.never()).delete(Mockito.any());
+        verify(clienteRepository, Mockito.never()).delete(Mockito.any());
     }
 
     Cliente getCliente() {

@@ -19,13 +19,13 @@ public class ClienteMapper {
     }
 
     public void updateClienteFromDto(Cliente cliente, ClienteUpdateDTO dto) {
-        if (dto.getNome() != null) cliente.setNome(dto.getNome());
-        if (dto.getEmail() != null) cliente.setEmail(dto.getEmail());
-        if (dto.getDataNascimento() != null) cliente.setDataNascimento(dto.getDataNascimento());
+        cliente.setNome(dto.getNome());
+        cliente.setEmail(dto.getEmail());
+        cliente.setDataNascimento(dto.getDataNascimento());
     }
 
     public void updateUsuarioFromCliente(Usuario usuario, ClienteUpdateDTO dto) {
-        if (dto.getNome() != null) usuario.setNome(dto.getNome());
-        if (dto.getEmail() != null) usuario.setEmail(dto.getEmail());
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
     }
 }
