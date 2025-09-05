@@ -5,6 +5,7 @@ import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteUpdateDT
 import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
+import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.UsuarioRepository;
@@ -55,7 +56,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public void editarCliente(UUID id, ClienteUpdateDTO dto) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
 
         clienteMapper.updateClienteFromDto(cliente, dto);
         clienteRepository.save(cliente);
@@ -68,9 +69,11 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public Optional<Cliente> buscarClientePorCpf(String cpf) {
-        return clienteRepository.findByCpf(cpf);
+    public Cliente buscarClientePorCpf(String cpf) {
+        return clienteRepository.findByCpf(cpf)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
     }
+
 
     @Override
     public List<Cliente> listarClientes() {
@@ -80,7 +83,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public void excluirCliente(UUID idCliente) {
         Cliente cliente = clienteRepository.findById(idCliente)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
 
         Usuario usuario = cliente.getUsuario();
         if (usuario != null) {

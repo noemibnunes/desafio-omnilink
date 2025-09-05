@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -46,13 +45,8 @@ public class ClienteController {
     @Operation(summary = "Buscar cliente", description = "Busca o cliente através do CPF informado")
     public ResponseEntity<Object> buscarCliente(@PathVariable String cpf) {
         try {
-            Optional<Cliente> cliente = clienteService.buscarClientePorCpf(cpf);
-            if (cliente.isPresent()) {
-                return ResponseEntity.ok(cliente.get());
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Cliente não encontrado");
-            }
+            Cliente cliente = clienteService.buscarClientePorCpf(cpf);
+            return ResponseEntity.ok(cliente);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

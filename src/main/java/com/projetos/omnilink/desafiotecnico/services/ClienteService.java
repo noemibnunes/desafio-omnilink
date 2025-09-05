@@ -5,13 +5,12 @@ import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteUpdateDT
 import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ClienteService {
     void criarCliente(ClienteCreateDTO clienteDTO);
     void editarCliente(UUID id, ClienteUpdateDTO clienteUpdateDTO);
-    Optional<Cliente> buscarClientePorCpf(String cpf);
+    Cliente buscarClientePorCpf(String cpf);
     List<Cliente> listarClientes();
     void excluirCliente(UUID idCliente);
 }
