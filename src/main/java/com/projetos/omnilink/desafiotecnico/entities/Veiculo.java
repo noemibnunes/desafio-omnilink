@@ -2,6 +2,8 @@ package com.projetos.omnilink.desafiotecnico.entities;
 
 import com.projetos.omnilink.desafiotecnico.enums.TipoCombustivelEnum;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -26,8 +28,13 @@ public class Veiculo {
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
+    @NotBlank(message = "O nome da marca é obrigatório")
     private String marca;
+
+    @NotBlank(message = "O nome do modelo é obrigatório")
     private String modelo;
+
+    @NotBlank(message = "O ano é obrigatório")
     private int ano;
 
     @Enumerated(EnumType.STRING)
@@ -35,6 +42,7 @@ public class Veiculo {
 
     private int quilometragem;
 
+    @Size(min = 5, max = 500, message = "A observação deve entre 5 e 500 caracteres")
     @Column(length = 500)
     private String observacoes;
 
