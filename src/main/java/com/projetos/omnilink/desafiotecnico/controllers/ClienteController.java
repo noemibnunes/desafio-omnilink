@@ -1,7 +1,7 @@
 package com.projetos.omnilink.desafiotecnico.controllers;
 
-import com.projetos.omnilink.desafiotecnico.dto.cliente.ClienteCreateDTO;
-import com.projetos.omnilink.desafiotecnico.dto.cliente.ClienteUpdateDTO;
+import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteCreateDTO;
+import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteUpdateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.services.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,10 +1,11 @@
-package com.projetos.omnilink.desafiotecnico.exception;
+package com.projetos.omnilink.desafiotecnico.exceptions.handler;
 
+import com.projetos.omnilink.desafiotecnico.exceptions.DadosInvalidosException;
+import com.projetos.omnilink.desafiotecnico.exceptions.dto.ErrorResponse;
+import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice

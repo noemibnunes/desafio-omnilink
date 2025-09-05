@@ -1,4 +1,4 @@
-package com.projetos.omnilink.desafiotecnico.exception;
+package com.projetos.omnilink.desafiotecnico.exceptions.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

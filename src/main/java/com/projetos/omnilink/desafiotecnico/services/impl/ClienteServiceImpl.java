@@ -1,11 +1,11 @@
 package com.projetos.omnilink.desafiotecnico.services.impl;
 
-import com.projetos.omnilink.desafiotecnico.dto.cliente.ClienteCreateDTO;
-import com.projetos.omnilink.desafiotecnico.dto.cliente.ClienteUpdateDTO;
+import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteCreateDTO;
+import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteUpdateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
-import com.projetos.omnilink.desafiotecnico.exception.UsuarioNaoEncontradoException;
+import com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.UsuarioRepository;
 import com.projetos.omnilink.desafiotecnico.services.ClienteService;
@@ -25,16 +25,13 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ClienteMapper clienteMapper;
 
     private static final String SOMENTE_NUMEROS = "[^\\d]";
 
     @Override
     public void criarCliente(ClienteCreateDTO clienteDTO) {
-        Cliente cliente = new Cliente();
-        cliente.setNome(clienteDTO.getNome());
-        cliente.setEmail(clienteDTO.getEmail());
-        cliente.setCpf(clienteDTO.getCpf().replaceAll(SOMENTE_NUMEROS, ""));
-        cliente.setDataNascimento(clienteDTO.getDataNascimento());
+        Cliente cliente = clienteMapper.toEntity(clienteDTO);
 
         verificarDuplicadoPorCpf(cliente.getCpf());
         ClienteValidator.verificarDadosCliente(cliente);
@@ -60,16 +57,12 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        if (dto.getNome() != null) cliente.setNome(dto.getNome());
-        if (dto.getEmail() != null) cliente.setEmail(dto.getEmail());
-        if (dto.getDataNascimento() != null) cliente.setDataNascimento(dto.getDataNascimento());
-
+        clienteMapper.updateClienteFromDto(cliente, dto);
         clienteRepository.save(cliente);
 
         Usuario usuario = cliente.getUsuario();
         if (usuario != null) {
-            if (dto.getNome() != null) usuario.setNome(dto.getNome());
-            if (dto.getEmail() != null) usuario.setEmail(dto.getEmail());
+            clienteMapper.updateUsuarioFromCliente(usuario, dto);
             usuarioRepository.save(usuario);
         }
     }

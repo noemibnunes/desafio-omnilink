@@ -2,6 +2,10 @@ package com.projetos.omnilink.desafiotecnico.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -24,14 +28,20 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @NotBlank(message = "O nome é obrigatório")
     private String nome;
 
+    @Email(message = "Email inválido")
+    @NotBlank(message = "O email é obrigatório")
     @Column(unique = true)
     private String email;
 
+    @NotBlank(message = "O CPF é obrigatório")
+    @Size(max = 14, message = "O CPF deve ter 11 caracteres")
     @Column(unique = true, length = 14)
     private String cpf;
 
+    @NotNull(message = "A data de nascimento é obrigatória")
     private LocalDate dataNascimento;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
