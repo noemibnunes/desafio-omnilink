@@ -1,8 +1,13 @@
 package com.projetos.omnilink.desafiotecnico.entities;
 
-import com.projetos.omnilink.desafiotecnico.enums.TipoCombustivel;
+import com.projetos.omnilink.desafiotecnico.enums.TipoCombustivelEnum;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.util.Date;
+import java.util.UUID;
 
 @Table(name = "veiculos")
 @Entity
@@ -14,8 +19,8 @@ import lombok.*;
 public class Veiculo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
@@ -26,16 +31,18 @@ public class Veiculo {
     private int ano;
 
     @Enumerated(EnumType.STRING)
-    private TipoCombustivel tipo_combustivel;
+    private TipoCombustivelEnum tipoCombustivel;
 
     private int quilometragem;
 
     @Column(length = 500)
     private String observacoes;
 
-    @Column(name = "created_at")
-    private java.util.Date createdAt;
+    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
+    private Date createdAt;
 
     @Column(name = "updated_at")
-    private java.util.Date updatedAt;
+    @UpdateTimestamp
+    private Date updatedAt;
 }

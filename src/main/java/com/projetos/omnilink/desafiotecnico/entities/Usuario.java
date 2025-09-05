@@ -1,8 +1,14 @@
 package com.projetos.omnilink.desafiotecnico.entities;
 
-import com.projetos.omnilink.desafiotecnico.enums.Role;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.util.Date;
+import java.util.UUID;
 
 @Table(name = "usuarios")
 @Entity
@@ -14,8 +20,8 @@ import lombok.*;
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     private String nome;
 
@@ -25,15 +31,18 @@ public class Usuario {
     private String senha_hash;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private RoleEnum role;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "cliente_id")
+    @JsonBackReference
     private Cliente cliente;
 
-    @Column(name = "created_at")
-    private java.util.Date createdAt;
+    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
+    private Date createdAt;
 
     @Column(name = "updated_at")
-    private java.util.Date updatedAt;
+    @UpdateTimestamp
+    private Date updatedAt;
 }
