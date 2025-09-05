@@ -25,17 +25,13 @@ public class ClienteValidator {
         }
 
         if (cliente.getDataNascimento() != null) {
-            LocalDate dataNascimento = cliente.getDataNascimento(); // já é LocalDate
-
             LocalDate hoje = LocalDate.now();
 
-            // Não pode ser no futuro
-            if (dataNascimento.isAfter(hoje)) {
+            if (cliente.getDataNascimento().isAfter(hoje)) {
                 throw new DadosInvalidosException("Data de nascimento não pode ser no futuro.");
             }
 
-            // Calcula idade
-            int idade = Period.between(dataNascimento, hoje).getYears();
+            int idade = Period.between(cliente.getDataNascimento(), hoje).getYears();
 
             if (idade < 18) {
                 throw new DadosInvalidosException("O cliente deve ter pelo menos 18 anos.");
