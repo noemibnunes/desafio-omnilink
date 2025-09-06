@@ -16,7 +16,7 @@ public class ClienteCreateDTO {
     @NotBlank
     private String email;
 
-    @Schema(description = "CPF do cliente", example = "12345678901")
+    @Schema(description = "CPF do cliente", example = "123.456.789-01")
     @NotBlank
     private String cpf;
 

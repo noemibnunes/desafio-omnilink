@@ -19,3 +19,7 @@ spring:
     time-zone: America/Sao_Paulo
     serialization.write-dates-as-timestamps: false
 
+  security:
+    jwt:
+      secret: ${SECRET}
+      expiration: 3600000
