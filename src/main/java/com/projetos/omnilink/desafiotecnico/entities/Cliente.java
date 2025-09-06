@@ -37,7 +37,7 @@ public class Cliente {
     private String email;
 
     @NotBlank(message = "O CPF é obrigatório")
-    @Size(max = 14, message = "O CPF deve ter 11 caracteres")
+    @Size(max = 11, message = "O CPF deve ter 11 caracteres")
     @Column(unique = true, length = 14)
     private String cpf;
 
@@ -45,6 +45,7 @@ public class Cliente {
     private LocalDate dataNascimento;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Veiculo> veiculos;
 
     @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)

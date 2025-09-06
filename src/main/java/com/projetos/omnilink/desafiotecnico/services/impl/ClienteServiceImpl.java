@@ -5,6 +5,7 @@ import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteUpdateDT
 import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
+import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
@@ -28,11 +29,11 @@ public class ClienteServiceImpl implements ClienteService {
     private final PasswordEncoder passwordEncoder;
     private final ClienteMapper clienteMapper;
 
-    private static final String SOMENTE_NUMEROS = "[^\\d]";
-
     @Override
     public void criarCliente(ClienteCreateDTO clienteDTO) {
         Cliente cliente = clienteMapper.toEntity(clienteDTO);
+
+        cliente.setCpf(ClienteValidator.normalizarCpf(cliente.getCpf()));
 
         verificarDuplicadoPorCpf(cliente.getCpf());
         ClienteValidator.verificarDadosCliente(cliente);
@@ -56,7 +57,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public void editarCliente(UUID id, ClienteUpdateDTO dto) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
 
         clienteMapper.updateClienteFromDto(cliente, dto);
         clienteRepository.save(cliente);
@@ -70,7 +71,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public Cliente buscarClientePorCpf(String cpf) {
-        return clienteRepository.findByCpf(cpf)
+        return clienteRepository.findByCpf(ClienteValidator.normalizarCpf(cpf))
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
     }
 
@@ -94,10 +95,10 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     public void verificarDuplicadoPorCpf(String cpf) {
-        boolean existe = clienteRepository.existsByCpf(cpf);
+        boolean existe = clienteRepository.existsByCpf(ClienteValidator.normalizarCpf(cpf));
 
         if (existe) {
-            throw new IllegalArgumentException("Já existe um cliente com esse CPF informado.");
+            throw new RegistroDuplicadoException("Já existe um cliente com esse CPF informado.");
         }
     }
 }

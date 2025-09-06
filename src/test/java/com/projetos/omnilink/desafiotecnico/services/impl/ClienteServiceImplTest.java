@@ -4,6 +4,7 @@ import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteUpdateDTO;
+import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
@@ -105,7 +106,7 @@ class ClienteServiceImplTest {
 
     @Test
     @DisplayName("Deve retornar o cliente correspondente ao CPF informado para busca")
-    public void deveRetornarClienteCorrespondenteAOCPF() {
+    public void deveRetornarClienteCorrespondenteAoCPF() {
         Cliente clienteMock = getCliente();
 
         when(clienteRepository.findByCpf(clienteMock.getCpf()))
@@ -136,8 +137,8 @@ class ClienteServiceImplTest {
         String cpf = "123456789";
         when(clienteRepository.existsByCpf(cpf)).thenReturn(true);
 
-        IllegalArgumentException exception = Assertions.assertThrows(
-                IllegalArgumentException.class,
+        RegistroDuplicadoException exception = Assertions.assertThrows(
+                RegistroDuplicadoException.class,
                 () -> clienteService.verificarDuplicadoPorCpf(cpf)
         );
 
