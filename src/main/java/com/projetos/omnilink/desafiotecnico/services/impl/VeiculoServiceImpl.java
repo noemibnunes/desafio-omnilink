@@ -1,11 +1,9 @@
 package com.projetos.omnilink.desafiotecnico.services.impl;
 
-import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Veiculo;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoUpdateDTO;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
-import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.VeiculoNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.mappers.VeiculoMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.VeiculoRepository;
@@ -15,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
