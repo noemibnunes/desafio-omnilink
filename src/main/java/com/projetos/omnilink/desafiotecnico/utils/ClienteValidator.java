@@ -7,20 +7,8 @@ import java.time.LocalDate;
 import java.time.Period;
 
 public class ClienteValidator {
-    private static final String SOMENTE_NUMEROS = "[^\\d]";
-
     public static void verificarDadosCliente(Cliente cliente) {
-        if (cliente.getNome() == null || cliente.getNome().isBlank()) {
-            throw new DadosInvalidosException("O nome é obrigatório.");
-        }
-
-        if (cliente.getEmail() == null || cliente.getEmail().isBlank()) {
-            throw new DadosInvalidosException("O email é obrigatório.");
-        }
-
-        if (cliente.getCpf() == null || cliente.getCpf().isBlank()) {
-            throw new DadosInvalidosException("O CPF é obrigatório.");
-        }
+        Utils.verificarCamposObrigatorios(cliente.getNome(), cliente.getEmail(), cliente.getCpf());
 
         if (cliente.getDataNascimento() != null) {
             LocalDate hoje = LocalDate.now();
@@ -36,10 +24,4 @@ public class ClienteValidator {
             }
         }
     }
-
-
-    public static String normalizarCpf(String cpf) {
-        return cpf.replaceAll(SOMENTE_NUMEROS, "");
-    }
-
 }
