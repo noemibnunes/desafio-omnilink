@@ -65,9 +65,21 @@ public class VeiculoController {
     }
 
     @PostMapping("/cliente/{clienteId}")
+    @Operation(summary = "Criar veículo para um determinado cliente", description = "Criar veiculo para cliente")
     public ResponseEntity<Veiculo> criarVeiculoParaCliente(@PathVariable UUID clienteId, @RequestBody VeiculoCreateDTO veiculoDTO) {
         Veiculo veiculo = veiculoService.criarVeiculoParaCliente(clienteId, veiculoDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(veiculo);
+    }
+
+    @PutMapping("/atualizarCliente/{clienteId}/{veiculoId}")
+    @Operation(summary = "Atualizar cliente do veículo", description = "Atualizar cliente do veículo")
+    public ResponseEntity<Object> atualizarClienteDoVeiculo(@PathVariable UUID clienteId, @PathVariable UUID veiculoId) {
+        try {
+            veiculoService.atualizarClienteDoVeiculo(clienteId, veiculoId);
+            return ResponseEntity.ok("Veículo atualizado com o novo cliente com sucesso.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/deletarVeiculo/{id}")

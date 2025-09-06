@@ -92,6 +92,7 @@ class VeiculoServiceImplTest {
 
         VeiculoCreateDTO dto = getVeiculoDto();
         Veiculo veiculo = getVeiculo();
+
         Cliente cliente = new Cliente();
         cliente.setId(clienteId);
         cliente.setVeiculos(new ArrayList<>());
@@ -115,6 +116,30 @@ class VeiculoServiceImplTest {
         Assertions.assertTrue(cliente.getVeiculos().contains(veiculoSalvo));
     }
 
+    @Test
+    @DisplayName("Deve atualizar o ('dono') do veículo")
+    public void deveSalvarNovoClienteParaVeiculo() {
+        UUID clienteId = UUID.randomUUID();
+        UUID veiculoId = UUID.randomUUID();
+
+        Veiculo veiculo = getVeiculo();
+        veiculo.setId(veiculoId);
+
+        Cliente cliente = new Cliente();
+        cliente.setId(clienteId);
+        cliente.setVeiculos(new ArrayList<>());
+
+        when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
+        when(veiculoRepository.findById(veiculoId)).thenReturn(Optional.of(veiculo));
+        when(veiculoRepository.save(Mockito.any(Veiculo.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        Veiculo veiculoAtualizado = veiculoService.atualizarClienteDoVeiculo(clienteId, veiculoId);
+
+        Assertions.assertEquals(cliente, veiculoAtualizado.getCliente());
+        Assertions.assertTrue(cliente.getVeiculos().contains(veiculoAtualizado));
+
+        verify(veiculoRepository, times(1)).save(veiculoAtualizado);
+    }
 
     @Test
     @DisplayName("Deve retornar uma lista de veículos")

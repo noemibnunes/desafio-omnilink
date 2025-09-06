@@ -74,6 +74,24 @@ public class VeiculoServiceImpl implements VeiculoService {
     }
 
     @Override
+    public Veiculo atualizarClienteDoVeiculo(UUID clienteId, UUID veiculoId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
+
+        Veiculo veiculo = veiculoRepository.findById(veiculoId)
+                .orElseThrow(() -> new VeiculoNaoEncontradoException("Veículo não encontrado."));
+
+        if (veiculo.getCliente() != null) {
+            veiculo.getCliente().getVeiculos().remove(veiculo);
+        }
+
+        veiculo.setCliente(cliente);
+        cliente.getVeiculos().add(veiculo);
+
+        return veiculoRepository.save(veiculo);
+    }
+
+    @Override
     public List<Veiculo> listarVeiculos() {
         return veiculoRepository.findAll();
     }

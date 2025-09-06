@@ -14,4 +14,5 @@ public interface VeiculoService {
     Veiculo buscarVeiculoPeloChassi(String chassi);
     void excluirVeiculo(UUID idVeiculo);
     Veiculo criarVeiculoParaCliente(UUID clienteId, VeiculoCreateDTO veiculoDTO);
+    Veiculo atualizarClienteDoVeiculo(UUID clienteId, UUID veiculoId);
 }
