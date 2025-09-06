@@ -12,12 +12,12 @@ import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.UsuarioRepository;
 import com.projetos.omnilink.desafiotecnico.services.ClienteService;
 import com.projetos.omnilink.desafiotecnico.utils.ClienteValidator;
+import com.projetos.omnilink.desafiotecnico.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,7 +33,7 @@ public class ClienteServiceImpl implements ClienteService {
     public void criarCliente(ClienteCreateDTO clienteDTO) {
         Cliente cliente = clienteMapper.toEntity(clienteDTO);
 
-        cliente.setCpf(ClienteValidator.normalizarCpf(cliente.getCpf()));
+        cliente.setCpf(Utils.normalizarCpf(cliente.getCpf()));
 
         verificarDuplicadoPorCpf(cliente.getCpf());
         ClienteValidator.verificarDadosCliente(cliente);
@@ -71,7 +71,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public Cliente buscarClientePorCpf(String cpf) {
-        return clienteRepository.findByCpf(ClienteValidator.normalizarCpf(cpf))
+        return clienteRepository.findByCpf(Utils.normalizarCpf(cpf))
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
     }
 
@@ -95,7 +95,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     public void verificarDuplicadoPorCpf(String cpf) {
-        boolean existe = clienteRepository.existsByCpf(ClienteValidator.normalizarCpf(cpf));
+        boolean existe = clienteRepository.existsByCpf(Utils.normalizarCpf(cpf));
 
         if (existe) {
             throw new RegistroDuplicadoException("Já existe um cliente com esse CPF informado.");
