@@ -1,6 +1,5 @@
 package com.projetos.omnilink.desafiotecnico.services;
 
-import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Veiculo;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoUpdateDTO;
@@ -14,4 +13,5 @@ public interface VeiculoService {
     List<Veiculo> listarVeiculos();
     Veiculo buscarVeiculoPeloChassi(String chassi);
     void excluirVeiculo(UUID idVeiculo);
+    Veiculo criarVeiculoParaCliente(UUID clienteId, VeiculoCreateDTO veiculoDTO);
 }

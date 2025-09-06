@@ -1,5 +1,6 @@
 package com.projetos.omnilink.desafiotecnico.services.impl;
 
+import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Veiculo;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoUpdateDTO;
@@ -8,6 +9,7 @@ import com.projetos.omnilink.desafiotecnico.enums.TipoVeiculoEnum;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.VeiculoNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.mappers.VeiculoMapper;
+import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.VeiculoRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,11 +20,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class VeiculoServiceImplTest {
 
@@ -34,6 +36,9 @@ class VeiculoServiceImplTest {
 
     @Mock
     private VeiculoRepository veiculoRepository;
+
+    @Mock
+    private ClienteRepository clienteRepository;
 
     @BeforeEach
     public void setUp() {
@@ -79,6 +84,37 @@ class VeiculoServiceImplTest {
 
         Assertions.assertEquals("1HGCM82633A004352", veiculo.getChassi());
     }
+
+    @Test
+    @DisplayName("Deve salvar um novo veículo para o cliente informado")
+    public void deveSalvarNovoVeiculoParaCliente() {
+        UUID clienteId = UUID.randomUUID();
+
+        VeiculoCreateDTO dto = getVeiculoDto();
+        Veiculo veiculo = getVeiculo();
+        Cliente cliente = new Cliente();
+        cliente.setId(clienteId);
+        cliente.setVeiculos(new ArrayList<>());
+
+        when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
+
+        when(veiculoMapper.toEntity(dto)).thenReturn(veiculo);
+
+        when(veiculoRepository.save(Mockito.any(Veiculo.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        Veiculo veiculoSalvo = veiculoService.criarVeiculoParaCliente(clienteId, dto);
+
+        verify(clienteRepository, times(1)).save(cliente);
+        verify(veiculoRepository, never()).save(Mockito.any());
+
+        Assertions.assertEquals("1HGCM82633A004352", veiculoSalvo.getChassi());
+        Assertions.assertEquals("marca", veiculoSalvo.getMarca());
+        Assertions.assertEquals("modelo", veiculoSalvo.getModelo());
+
+        Assertions.assertEquals(cliente, veiculoSalvo.getCliente());
+        Assertions.assertTrue(cliente.getVeiculos().contains(veiculoSalvo));
+    }
+
 
     @Test
     @DisplayName("Deve retornar uma lista de veículos")

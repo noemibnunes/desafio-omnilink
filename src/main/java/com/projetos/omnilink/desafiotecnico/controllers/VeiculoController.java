@@ -64,6 +64,12 @@ public class VeiculoController {
         return ResponseEntity.status(HttpStatus.OK).body(veiculos);
     }
 
+    @PostMapping("/cliente/{clienteId}")
+    public ResponseEntity<Veiculo> criarVeiculoParaCliente(@PathVariable UUID clienteId, @RequestBody VeiculoCreateDTO veiculoDTO) {
+        Veiculo veiculo = veiculoService.criarVeiculoParaCliente(clienteId, veiculoDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(veiculo);
+    }
+
     @DeleteMapping("/deletarVeiculo/{id}")
     @Operation(summary = "Deletar veículo", description = "Deleta o veículo")
     public ResponseEntity<Object> deletarVeiculo(@PathVariable UUID id) {

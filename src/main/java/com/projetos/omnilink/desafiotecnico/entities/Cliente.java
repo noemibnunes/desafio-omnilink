@@ -45,6 +45,7 @@ public class Cliente {
     private LocalDate dataNascimento;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Veiculo> veiculos;
 
     @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)

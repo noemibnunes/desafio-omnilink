@@ -1,5 +1,6 @@
 package com.projetos.omnilink.desafiotecnico.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.projetos.omnilink.desafiotecnico.enums.TipoCombustivelEnum;
 import com.projetos.omnilink.desafiotecnico.enums.TipoVeiculoEnum;
 import jakarta.persistence.*;
@@ -28,6 +29,7 @@ public class Veiculo {
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
+    @JsonBackReference
     private Cliente cliente;
 
     @Size(max = 17, message = "O número do Chassi deve conter 17 caracteres")

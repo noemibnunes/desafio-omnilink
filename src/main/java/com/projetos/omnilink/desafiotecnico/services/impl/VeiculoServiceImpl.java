@@ -1,11 +1,14 @@
 package com.projetos.omnilink.desafiotecnico.services.impl;
 
+import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Veiculo;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoUpdateDTO;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
+import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.VeiculoNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.mappers.VeiculoMapper;
+import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.VeiculoRepository;
 import com.projetos.omnilink.desafiotecnico.services.VeiculoService;
 import com.projetos.omnilink.desafiotecnico.utils.VeiculoValidator;
@@ -21,6 +24,7 @@ public class VeiculoServiceImpl implements VeiculoService {
 
     private final VeiculoRepository veiculoRepository;
     private final VeiculoMapper veiculoMapper;
+    private final ClienteRepository clienteRepository;
 
     @Override
     public void criarVeiculo(VeiculoCreateDTO veiculoDTO) {
@@ -38,6 +42,35 @@ public class VeiculoServiceImpl implements VeiculoService {
 
         veiculoMapper.updateVeiculoFromDto(veiculo, dto);
         veiculoRepository.save(veiculo);
+    }
+
+    @Override
+    public Veiculo criarVeiculoParaCliente(UUID clienteId, VeiculoCreateDTO veiculoDTO) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
+
+        Veiculo veiculo = veiculoMapper.toEntity(veiculoDTO);
+
+        VeiculoValidator.verificarDadosVeiculo(veiculo);
+        verificarDuplicadoPorChassi(veiculoDTO.getChassi());
+
+        veiculo = Veiculo.builder()
+                .chassi(veiculoDTO.getChassi())
+                .marca(veiculoDTO.getMarca())
+                .modelo(veiculoDTO.getModelo())
+                .ano(veiculoDTO.getAno())
+                .tipoVeiculo(veiculoDTO.getTipoVeiculo())
+                .tipoCombustivel(veiculoDTO.getTipoCombustivel())
+                .quilometragem(veiculoDTO.getQuilometragem())
+                .observacoes(veiculoDTO.getObservacoes())
+                .build();
+
+        veiculo.setCliente(cliente);
+        cliente.getVeiculos().add(veiculo);
+
+        clienteRepository.save(cliente);
+
+        return veiculo;
     }
 
     @Override
