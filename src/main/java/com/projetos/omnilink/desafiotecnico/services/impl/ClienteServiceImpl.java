@@ -45,7 +45,7 @@ public class ClienteServiceImpl implements ClienteService {
                 .nome(clienteSalvo.getNome())
                 .email(clienteSalvo.getEmail())
                 .senha_hash(passwordEncoder.encode(clienteSalvo.getCpf()))
-                .role(RoleEnum.ROLE_CLIENTE)
+                .role(RoleEnum.CLIENTE)
                 .build();
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);

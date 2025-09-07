@@ -3,6 +3,7 @@ package com.projetos.omnilink.desafiotecnico.services.impl;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioUpdateDTO;
+import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.mappers.UsuarioMapper;
@@ -64,7 +65,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public List<Usuario> buscarUsuariosPorRole(String role) {
-        List<Usuario> usuarios = usuarioRepository.findUsuariosByRole(role);
+        RoleEnum roleEnum = RoleEnum.from(role);
+        List<Usuario> usuarios = usuarioRepository.findUsuariosByRole(roleEnum);
         if (usuarios.isEmpty()) {
             throw new UsuarioNaoEncontradoException("Usuários não encontrados.");
         }

@@ -25,7 +25,7 @@ public class UsuarioCreateDTO {
     @NotBlank
     private String senha;
 
-    @Schema(description = "Role do usuário", example = "ROLE_CLIENTE")
+    @Schema(description = "Role do usuário", example = "CLIENTE")
     @NotBlank
     private RoleEnum role;
 }

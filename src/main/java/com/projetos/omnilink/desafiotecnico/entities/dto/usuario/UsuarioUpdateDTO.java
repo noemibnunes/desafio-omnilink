@@ -15,7 +15,7 @@ public class UsuarioUpdateDTO {
     @NotBlank
     private String email;
 
-    @Schema(description = "Role do usuário", example = "ROLE_CLIENTE")
+    @Schema(description = "Role do usuário", example = "CLIENTE")
     @NotBlank
     private RoleEnum role;
 }

@@ -29,7 +29,7 @@ public class Usuario {
     private UUID id;
 
     @NotBlank(message = "O CPF é obrigatório")
-    @Size(max = 11, message = "O CPF deve ter 11 caracteres")
+    @Size(max = 14, message = "O CPF deve ter 11 caracteres")
     @Column(unique = true, length = 14)
     private String cpf;
 
