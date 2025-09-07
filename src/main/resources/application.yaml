@@ -19,7 +19,16 @@ spring:
     time-zone: America/Sao_Paulo
     serialization.write-dates-as-timestamps: false
 
-  security:
-    jwt:
-      secret: ${SECRET}
-      expiration: 3600000
+  admin:
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
+    nome: ${ADMIN_NOME}
+    cpf: ${ADMIN_CPF}
+
+security:
+  jwt:
+    secret: ${SECRET_KEY}
+    expiration: 3600000
+
+
+
