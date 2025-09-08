@@ -10,19 +10,25 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
+
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI().info(new Info()
-                .title("Desafio técnico - Omnilink")
-                .version("1.0")
-                .description("API para gerenciamento de veículos e clientes")
-        ).components(new Components()
-                        .addSecuritySchemes("basicScheme",
+        final String securitySchemeName = "bearerAuth";
+
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Desafio técnico - Omnilink")
+                        .version("1.0")
+                        .description("API para gerenciamento de veículos e clientes")
+                )
+                .components(new Components()
+                        .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
-                                        .scheme("basic")
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
                         )
                 )
-                .addSecurityItem(new SecurityRequirement().addList("basicScheme"));
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName));
     }
 }
