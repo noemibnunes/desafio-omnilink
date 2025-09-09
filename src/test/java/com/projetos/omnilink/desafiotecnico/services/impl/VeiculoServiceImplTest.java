@@ -8,10 +8,8 @@ import com.projetos.omnilink.desafiotecnico.enums.TipoCombustivelEnum;
 import com.projetos.omnilink.desafiotecnico.enums.TipoVeiculoEnum;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.VeiculoNaoEncontradoException;
-import com.projetos.omnilink.desafiotecnico.mappers.VeiculoMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.VeiculoRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,15 +22,13 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class VeiculoServiceImplTest {
 
     @InjectMocks
     private VeiculoServiceImpl veiculoService;
-
-    @Mock
-    private VeiculoMapper veiculoMapper;
 
     @Mock
     private VeiculoRepository veiculoRepository;
@@ -51,16 +47,15 @@ class VeiculoServiceImplTest {
         VeiculoCreateDTO dto = getVeiculoDto();
         Veiculo veiculo = getVeiculo();
 
-        when(veiculoMapper.toEntity(dto)).thenReturn(veiculo);
         when(veiculoRepository.save(Mockito.any(Veiculo.class))).thenAnswer(i -> i.getArguments()[0]);
 
         veiculoService.criarVeiculo(dto);
 
         verify(veiculoRepository, Mockito.times(1)).save(Mockito.any(Veiculo.class));
 
-        Assertions.assertEquals("1HGCM82633A004352", veiculo.getChassi());
-        Assertions.assertEquals("marca", veiculo.getMarca());
-        Assertions.assertEquals("modelo", veiculo.getModelo());
+        assertEquals("1HGCM82633A004352", veiculo.getChassi());
+        assertEquals("marca", veiculo.getMarca());
+        assertEquals("modelo", veiculo.getModelo());
     }
 
     @Test
@@ -79,10 +74,10 @@ class VeiculoServiceImplTest {
 
         verify(veiculoRepository, Mockito.times(1)).save(Mockito.any(Veiculo.class));
 
-        Assertions.assertEquals(dto.getQuilometragem(), veiculo.getQuilometragem());
-        Assertions.assertEquals(dto.getObservacoes(), veiculo.getObservacoes());
+        assertEquals(dto.getQuilometragem(), veiculo.getQuilometragem());
+        assertEquals(dto.getObservacoes(), veiculo.getObservacoes());
 
-        Assertions.assertEquals("1HGCM82633A004352", veiculo.getChassi());
+        assertEquals("1HGCM82633A004352", veiculo.getChassi());
     }
 
     @Test
@@ -91,7 +86,6 @@ class VeiculoServiceImplTest {
         UUID clienteId = UUID.randomUUID();
 
         VeiculoCreateDTO dto = getVeiculoDto();
-        Veiculo veiculo = getVeiculo();
 
         Cliente cliente = new Cliente();
         cliente.setId(clienteId);
@@ -99,21 +93,16 @@ class VeiculoServiceImplTest {
 
         when(clienteRepository.findById(clienteId)).thenReturn(Optional.of(cliente));
 
-        when(veiculoMapper.toEntity(dto)).thenReturn(veiculo);
-
-        when(veiculoRepository.save(Mockito.any(Veiculo.class))).thenAnswer(i -> i.getArguments()[0]);
-
         Veiculo veiculoSalvo = veiculoService.criarVeiculoParaCliente(clienteId, dto);
 
         verify(clienteRepository, times(1)).save(cliente);
-        verify(veiculoRepository, never()).save(Mockito.any());
 
-        Assertions.assertEquals("1HGCM82633A004352", veiculoSalvo.getChassi());
-        Assertions.assertEquals("marca", veiculoSalvo.getMarca());
-        Assertions.assertEquals("modelo", veiculoSalvo.getModelo());
+        assertEquals(dto.getChassi(), veiculoSalvo.getChassi());
+        assertEquals(dto.getMarca(), veiculoSalvo.getMarca());
+        assertEquals(dto.getModelo(), veiculoSalvo.getModelo());
 
-        Assertions.assertEquals(cliente, veiculoSalvo.getCliente());
-        Assertions.assertTrue(cliente.getVeiculos().contains(veiculoSalvo));
+        assertEquals(cliente, veiculoSalvo.getCliente());
+        assertTrue(cliente.getVeiculos().contains(veiculoSalvo));
     }
 
     @Test
@@ -135,8 +124,8 @@ class VeiculoServiceImplTest {
 
         Veiculo veiculoAtualizado = veiculoService.atualizarClienteDoVeiculo(clienteId, veiculoId);
 
-        Assertions.assertEquals(cliente, veiculoAtualizado.getCliente());
-        Assertions.assertTrue(cliente.getVeiculos().contains(veiculoAtualizado));
+        assertEquals(cliente, veiculoAtualizado.getCliente());
+        assertTrue(cliente.getVeiculos().contains(veiculoAtualizado));
 
         verify(veiculoRepository, times(1)).save(veiculoAtualizado);
     }
@@ -146,7 +135,7 @@ class VeiculoServiceImplTest {
     public void deveRetornarListaVeiculos() {
         veiculoService.listarVeiculos();
 
-        Assertions.assertNotNull(veiculoRepository.findAll());
+        assertNotNull(veiculoRepository.findAll());
     }
 
     @Test
@@ -159,7 +148,7 @@ class VeiculoServiceImplTest {
 
         Veiculo veiculo = veiculoService.buscarVeiculoPeloChassi(veiculoMock.getChassi());
 
-        Assertions.assertEquals(veiculoMock.getChassi(), veiculo.getChassi());
+        assertEquals(veiculoMock.getChassi(), veiculo.getChassi());
 
         verify(veiculoRepository, Mockito.times(1)).findByChassi(veiculoMock.getChassi());
     }
@@ -170,7 +159,7 @@ class VeiculoServiceImplTest {
         String chassi = "1HGCM82633A00435";
         when(veiculoRepository.findByChassi(chassi)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(VeiculoNaoEncontradoException.class,
+        assertThrows(VeiculoNaoEncontradoException.class,
                 () -> veiculoService.buscarVeiculoPeloChassi(chassi));
 
         verify(veiculoRepository, Mockito.times(1)).findByChassi(chassi);
@@ -182,12 +171,12 @@ class VeiculoServiceImplTest {
         String chassi = "1HGCM82633A004352";
         when(veiculoRepository.existsByChassi(chassi)).thenReturn(true);
 
-        RegistroDuplicadoException exception = Assertions.assertThrows(
+        RegistroDuplicadoException exception = assertThrows(
                 RegistroDuplicadoException.class,
                 () -> veiculoService.verificarDuplicadoPorChassi(chassi)
         );
 
-        Assertions.assertEquals("Já existe um veículo com esse Chassi informado.", exception.getMessage());
+        assertEquals("Já existe um veículo com esse Chassi informado.", exception.getMessage());
     }
 
     @Test
@@ -211,7 +200,7 @@ class VeiculoServiceImplTest {
 
         when(veiculoRepository.findById(idVeiculo)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(VeiculoNaoEncontradoException.class,
+        assertThrows(VeiculoNaoEncontradoException.class,
                 () -> veiculoService.excluirVeiculo(idVeiculo));
 
         verify(veiculoRepository, Mockito.times(1)).findById(idVeiculo);

@@ -21,7 +21,7 @@ public class UsuarioCreateDTO {
     @NotBlank
     private String email;
 
-    @Schema(description = "Senha do usuário", example = "s3nh@")
+    @Schema(description = "Senha do usuário", example = "Minh@s3nha")
     @NotBlank
     private String senha;
 

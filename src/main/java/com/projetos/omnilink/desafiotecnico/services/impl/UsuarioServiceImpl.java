@@ -3,10 +3,10 @@ package com.projetos.omnilink.desafiotecnico.services.impl;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioUpdateDTO;
+import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioUpdateSenhaDTO;
 import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
-import com.projetos.omnilink.desafiotecnico.mappers.UsuarioMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.UsuarioRepository;
 import com.projetos.omnilink.desafiotecnico.services.UsuarioService;
 import com.projetos.omnilink.desafiotecnico.utils.UsuarioValidator;
@@ -18,22 +18,27 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+import static com.projetos.omnilink.desafiotecnico.mappers.UsuarioMapper.toEntity;
+import static com.projetos.omnilink.desafiotecnico.mappers.UsuarioMapper.updateUsuarioFromDto;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void criarUsuario(UsuarioCreateDTO usuarioCreateDTO) {
-        Usuario usuario = usuarioMapper.toEntity(usuarioCreateDTO);
+        Usuario usuario = toEntity(usuarioCreateDTO);
 
         usuario.setCpf(Utils.normalizarCpf(usuario.getCpf()));
 
+        String senhaSemEnconder = usuarioCreateDTO.getSenha();
+        UsuarioValidator.verificarDadosUsuario(usuario, senhaSemEnconder);
+
         verificarDuplicadoPorCpf(usuario.getCpf());
-        UsuarioValidator.verificarDadosUsuario(usuario);
+        UsuarioValidator.verificarDadosUsuario(usuario, senhaSemEnconder);
 
         usuario.setSenha_hash(passwordEncoder.encode(usuarioCreateDTO.getSenha()));
         usuarioRepository.save(usuario);
@@ -44,16 +49,19 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
 
-        usuarioMapper.updateUsurioFromDto(usuario, dto);
+        updateUsuarioFromDto(usuario, dto);
+        UsuarioValidator.verificarDadosUsuario(usuario);
         usuarioRepository.save(usuario);
     }
 
     @Override
-    public void editarSenhaUsuario(UUID id, String senha) {
+    public void editarSenhaUsuario(UUID id, UsuarioUpdateSenhaDTO dto) {
+        UsuarioValidator.verificarSenha(dto.getSenha());
+
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
 
-        usuario.setSenha_hash(passwordEncoder.encode(senha));
+        usuario.setSenha_hash(passwordEncoder.encode(dto.getSenha()));
         usuarioRepository.save(usuario);
     }
 

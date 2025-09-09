@@ -4,7 +4,6 @@ import com.projetos.omnilink.desafiotecnico.entities.Veiculo;
 import com.projetos.omnilink.desafiotecnico.exceptions.DadosInvalidosException;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 public class VeiculoValidator {
 
@@ -24,7 +23,7 @@ public class VeiculoValidator {
         }
 
         if (veiculo.getModelo() == null || veiculo.getModelo().isBlank()) {
-            throw new DadosInvalidosException("O modelo do veículo é obrigatória.");
+            throw new DadosInvalidosException("O modelo do veículo é obrigatório.");
         }
 
         if (veiculo.getAno() == 0) {

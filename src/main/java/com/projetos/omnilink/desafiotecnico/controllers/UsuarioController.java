@@ -3,7 +3,9 @@ package com.projetos.omnilink.desafiotecnico.controllers;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioUpdateDTO;
+import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioUpdateSenhaDTO;
 import com.projetos.omnilink.desafiotecnico.services.UsuarioService;
+import com.projetos.omnilink.desafiotecnico.utils.MensagemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletRequest;
@@ -25,48 +27,48 @@ public class UsuarioController {
 
     @PostMapping("/criarUsuario")
     @Operation(summary = "Cadastrar usuário", description = "Cadastra um novo usuário que ainda não possua cadastro")
-    public ResponseEntity<Object> criarUsuario(@RequestBody UsuarioCreateDTO usuarioDTO) {
+    public ResponseEntity<MensagemResponse> criarUsuario(@RequestBody UsuarioCreateDTO usuarioDTO) {
         usuarioService.criarUsuario(usuarioDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário salvo com sucesso!");
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MensagemResponse("Usuário salvo com sucesso!"));
     }
 
     @PutMapping("/alterarUsuario/{id}")
     @Operation(summary = "Atualizar usuário", description = "Atualizar dados do usuário")
-    public ResponseEntity<?> editarUsuario(@PathVariable UUID id, @RequestBody UsuarioUpdateDTO usuarioUpdateDTO) {
+    public ResponseEntity<MensagemResponse> editarUsuario(@PathVariable UUID id, @RequestBody UsuarioUpdateDTO usuarioUpdateDTO) {
         try {
             usuarioService.editarUsuario(id, usuarioUpdateDTO);
-            return ResponseEntity.ok("Usuário atualizado com sucesso.");
+            return ResponseEntity.ok(new MensagemResponse("Usuário atualizado com sucesso."));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MensagemResponse(e.getMessage()));
         }
     }
 
     @PutMapping("/alterarUsuario/senha/{id}")
     @Operation(summary = "Atualizar senha do usuário", description = "Atualizar senha do usuário")
-    public ResponseEntity<?> editarSenhaUsuario(@PathVariable UUID id, @RequestBody String senha) {
+    public ResponseEntity<MensagemResponse> editarSenhaUsuario(@PathVariable UUID id, @RequestBody UsuarioUpdateSenhaDTO senha) {
         try {
             usuarioService.editarSenhaUsuario(id, senha);
-            return ResponseEntity.ok("Senha do usuário atualizada com sucesso.");
+            return ResponseEntity.ok(new MensagemResponse("Senha do usuário atualizada com sucesso."));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MensagemResponse(e.getMessage()));
         }
     }
 
     @GetMapping("/buscarUsuario/{cpf}")
     @Operation(summary = "Buscar usuário", description = "Busca o usuário através do CPF informado")
-    public ResponseEntity<Object> buscarUsuarioPorCpf(@PathVariable String cpf, ServletRequest servletRequest) {
+    public ResponseEntity<Usuario> buscarUsuarioPorCpf(@PathVariable String cpf) {
         try {
             Usuario usuario = usuarioService.buscarUsuarioPorCpf(cpf);
             return ResponseEntity.ok(usuario);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     @GetMapping("/listarUsuarios")
     @Operation(summary = "Listar usuário", description = "Lista todos os usuário cadastrados no sistema")
-    public ResponseEntity<Object> listarUsuarios() {
+    public ResponseEntity<List<Usuario>> listarUsuarios() {
         List<Usuario> usuarios = usuarioService.listarUsuarios();
 
         if (usuarios.isEmpty()) {
@@ -78,7 +80,7 @@ public class UsuarioController {
 
     @GetMapping("/listarUsuarios/role")
     @Operation(summary = "Listar usuário por Role", description = "Lista todos os usuário cadastrados no sistema com a role informada")
-    public ResponseEntity<Object> listarUsuarioPorRole(@RequestParam String role) {
+    public ResponseEntity<List<Usuario>> listarUsuarioPorRole(@RequestParam String role) {
         List<Usuario> usuarios = usuarioService.buscarUsuariosPorRole(role);
 
         if (usuarios.isEmpty()) {
@@ -90,12 +92,12 @@ public class UsuarioController {
 
     @DeleteMapping("/deletarUsuario/{id}")
     @Operation(summary = "Deletar usuário", description = "Deleta o usuário")
-    public ResponseEntity<Object> deletarUsuario(@PathVariable UUID id) {
+    public ResponseEntity<MensagemResponse> deletarUsuario(@PathVariable UUID id) {
         try {
             usuarioService.deleteUsuario(id);
-            return ResponseEntity.ok("Usuário deletado com sucesso.");
+            return ResponseEntity.ok(new MensagemResponse("Usuário deletado com sucesso."));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MensagemResponse(e.getMessage()));
         }
     }
 }

@@ -24,7 +24,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Autentique-se para acessar as operações do sistema")
-    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String senha) {
+    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String senha) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
 

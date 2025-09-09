@@ -4,27 +4,27 @@ import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteUpdateDTO;
+import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
-import com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.UsuarioRepository;
-import org.junit.jupiter.api.Assertions;
+import com.projetos.omnilink.desafiotecnico.utils.UsuarioValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper.toEntity;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,9 +32,6 @@ class ClienteServiceImplTest {
 
     @InjectMocks
     private ClienteServiceImpl clienteService;
-
-    @Mock
-    private ClienteMapper clienteMapper;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -56,7 +53,6 @@ class ClienteServiceImplTest {
         ClienteCreateDTO dto = getClienteDto();
         Cliente cliente = getCliente();
 
-        when(clienteMapper.toEntity(dto)).thenReturn(cliente);
         when(clienteRepository.save(Mockito.any(Cliente.class))).thenAnswer(i -> i.getArguments()[0]);
         when(usuarioRepository.save(Mockito.any(Usuario.class))).thenAnswer(i -> i.getArguments()[0]);
         when(passwordEncoder.encode(Mockito.anyString())).thenReturn("senhaHash");
@@ -66,9 +62,9 @@ class ClienteServiceImplTest {
         verify(clienteRepository, Mockito.times(2)).save(Mockito.any(Cliente.class));
         verify(usuarioRepository, Mockito.times(1)).save(Mockito.any(Usuario.class));
 
-        Assertions.assertEquals("Teste", cliente.getNome());
-        Assertions.assertEquals("teste@gmail.com", cliente.getEmail());
-        Assertions.assertEquals("11111111111", cliente.getCpf());
+        assertEquals("Teste", cliente.getNome());
+        assertEquals("teste@gmail.com", cliente.getEmail());
+        assertEquals("11111111111", cliente.getCpf());
     }
 
     @Test
@@ -77,7 +73,8 @@ class ClienteServiceImplTest {
         Cliente cliente = getCliente();
         ClienteUpdateDTO dto = getClienteUdpateDto();
 
-        clienteMapper.updateClienteFromDto(cliente, dto);
+        Usuario usuario = getUsuario();
+        cliente.setUsuario(usuario);
 
         when(clienteRepository.findById(cliente.getId()))
                 .thenReturn(Optional.of(cliente));
@@ -85,15 +82,21 @@ class ClienteServiceImplTest {
         when(clienteRepository.save(Mockito.any(Cliente.class)))
                 .thenAnswer(i -> i.getArguments()[0]);
 
+        when(usuarioRepository.save(Mockito.any(Usuario.class)))
+                .thenAnswer(i -> i.getArguments()[0]);
+
         clienteService.editarCliente(cliente.getId(), dto);
 
         verify(clienteRepository, Mockito.times(1)).save(cliente);
+        verify(usuarioRepository, Mockito.times(1)).save(usuario);
 
-        Assertions.assertEquals(dto.getNome(), cliente.getNome());
-        Assertions.assertEquals(dto.getEmail(), cliente.getEmail());
-        Assertions.assertEquals(dto.getDataNascimento(), cliente.getDataNascimento());
+        assertEquals(dto.getNome(), cliente.getNome());
+        assertEquals(dto.getEmail(), cliente.getEmail());
+        assertEquals(dto.getDataNascimento(), cliente.getDataNascimento());
+        assertEquals("11111111111", cliente.getCpf());
 
-        Assertions.assertEquals("11111111111", cliente.getCpf());
+        assertEquals(dto.getNome(), usuario.getNome());
+        assertEquals(dto.getEmail(), usuario.getEmail());
     }
 
     @Test
@@ -101,7 +104,7 @@ class ClienteServiceImplTest {
     public void deveRetornarListaClientes() {
         clienteService.listarClientes();
 
-        Assertions.assertNotNull(clienteRepository.findAll());
+        assertNotNull(clienteRepository.findAll());
     }
 
     @Test
@@ -114,7 +117,7 @@ class ClienteServiceImplTest {
 
         Cliente cliente = clienteService.buscarClientePorCpf(clienteMock.getCpf());
 
-        Assertions.assertEquals(clienteMock.getCpf(), cliente.getCpf());
+        assertEquals(clienteMock.getCpf(), cliente.getCpf());
 
         verify(clienteRepository, Mockito.times(1)).findByCpf(clienteMock.getCpf());
     }
@@ -125,7 +128,7 @@ class ClienteServiceImplTest {
         String cpf = "999999999";
         when(clienteRepository.findByCpf(cpf)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(UsuarioNaoEncontradoException.class,
+        assertThrows(UsuarioNaoEncontradoException.class,
                 () -> clienteService.buscarClientePorCpf(cpf));
 
         verify(clienteRepository, Mockito.times(1)).findByCpf(cpf);
@@ -137,12 +140,12 @@ class ClienteServiceImplTest {
         String cpf = "123456789";
         when(clienteRepository.existsByCpf(cpf)).thenReturn(true);
 
-        RegistroDuplicadoException exception = Assertions.assertThrows(
+        RegistroDuplicadoException exception = assertThrows(
                 RegistroDuplicadoException.class,
                 () -> clienteService.verificarDuplicadoPorCpf(cpf)
         );
 
-        Assertions.assertEquals("Já existe um cliente com esse CPF informado.", exception.getMessage());
+        assertEquals("Já existe um cliente com esse CPF informado.", exception.getMessage());
     }
 
     @Test
@@ -167,7 +170,7 @@ class ClienteServiceImplTest {
 
         when(clienteRepository.findById(idCliente)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(UsuarioNaoEncontradoException.class,
+        assertThrows(UsuarioNaoEncontradoException.class,
                 () -> clienteService.excluirCliente(idCliente));
 
         verify(clienteRepository, Mockito.times(1)).findById(idCliente);
@@ -206,5 +209,18 @@ class ClienteServiceImplTest {
         clienteUdpateDto.setDataNascimento(getCliente().getDataNascimento());
 
         return clienteUdpateDto;
+    }
+
+    Usuario getUsuario() {
+        UUID idUsuario = UUID.randomUUID();
+
+        return Usuario.builder()
+                .id(idUsuario)
+                .nome("Teste")
+                .email("teste@gmail.com")
+                .cpf("11111111111")
+                .role(RoleEnum.CLIENTE)
+                .senha_hash("11111111111")
+                .build();
     }
 }
