@@ -59,7 +59,7 @@ class ClienteServiceImplTest {
 
         clienteService.criarCliente(dto);
 
-        verify(clienteRepository, Mockito.times(2)).save(Mockito.any(Cliente.class));
+        verify(clienteRepository, Mockito.times(1)).save(Mockito.any(Cliente.class));
         verify(usuarioRepository, Mockito.times(1)).save(Mockito.any(Usuario.class));
 
         assertEquals("Teste", cliente.getNome());
