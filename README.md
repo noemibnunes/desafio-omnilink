@@ -48,3 +48,8 @@ cp .env.example .env
 ```
 docker-compose up -d
 ```
+
+### 4. Acessar documentação (Swagger)
+```
+http://localhost:8080/swagger-ui/index.html#/
+```
