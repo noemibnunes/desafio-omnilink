@@ -4,6 +4,7 @@ import com.projetos.omnilink.desafiotecnico.entities.Veiculo;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoUpdateDTO;
 import com.projetos.omnilink.desafiotecnico.services.VeiculoService;
+import com.projetos.omnilink.desafiotecnico.utils.MensagemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -24,37 +25,37 @@ public class VeiculoController {
 
     @PostMapping("/criarVeiculo")
     @Operation(summary = "Cadastrar veículo", description = "Cadastra um novo veículo")
-    public ResponseEntity<Object> criarVeiculo(@RequestBody VeiculoCreateDTO veiculoDTO) {
+    public ResponseEntity<MensagemResponse> criarVeiculo(@RequestBody VeiculoCreateDTO veiculoDTO) {
         veiculoService.criarVeiculo(veiculoDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Veículo salvo com sucesso!");
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MensagemResponse("Veículo salvo com sucesso!"));
     }
 
     @PutMapping("/alterarVeiculo/{id}")
     @Operation(summary = "Atualizar veículo", description = "Atualizar dados do veículo")
-    public ResponseEntity<?> editarVeiculo(@PathVariable UUID id, @RequestBody VeiculoUpdateDTO veiculoUpdateDTO) {
+    public ResponseEntity<MensagemResponse> editarVeiculo(@PathVariable UUID id, @RequestBody VeiculoUpdateDTO veiculoUpdateDTO) {
         try {
             veiculoService.editarVeiculo(id, veiculoUpdateDTO);
-            return ResponseEntity.ok("Veículo atualizado com sucesso.");
+            return ResponseEntity.ok(new MensagemResponse("Veículo atualizado com sucesso."));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MensagemResponse(e.getMessage()));
         }
     }
 
     @GetMapping("/buscarVeiculo/{chassi}")
     @Operation(summary = "Buscar veículo", description = "Busca o veículo através do Chassi informado")
-    public ResponseEntity<Object> buscarVeiculoPeloChassi(@PathVariable String chassi) {
+    public ResponseEntity<Veiculo> buscarVeiculoPeloChassi(@PathVariable String chassi) {
         try {
             Veiculo veiculo = veiculoService.buscarVeiculoPeloChassi(chassi);
             return ResponseEntity.ok(veiculo);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     @GetMapping("/listarVeiculos")
     @Operation(summary = "Listar veículo", description = "Lista todos os veículos cadastrados no sistema")
-    public ResponseEntity<Object> listarVeiculos() {
+    public ResponseEntity<List<Veiculo>> listarVeiculos() {
         List<Veiculo> veiculos = veiculoService.listarVeiculos();
 
         if (veiculos.isEmpty()) {
@@ -73,23 +74,23 @@ public class VeiculoController {
 
     @PutMapping("/atualizarCliente/{clienteId}/{veiculoId}")
     @Operation(summary = "Atualizar cliente do veículo", description = "Atualizar cliente do veículo")
-    public ResponseEntity<Object> atualizarClienteDoVeiculo(@PathVariable UUID clienteId, @PathVariable UUID veiculoId) {
+    public ResponseEntity<MensagemResponse> atualizarClienteDoVeiculo(@PathVariable UUID clienteId, @PathVariable UUID veiculoId) {
         try {
             veiculoService.atualizarClienteDoVeiculo(clienteId, veiculoId);
-            return ResponseEntity.ok("Veículo atualizado com o novo cliente com sucesso.");
+            return ResponseEntity.ok(new MensagemResponse("Veículo atualizado com o novo cliente com sucesso."));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MensagemResponse(e.getMessage()));
         }
     }
 
     @DeleteMapping("/deletarVeiculo/{id}")
     @Operation(summary = "Deletar veículo", description = "Deleta o veículo")
-    public ResponseEntity<Object> deletarVeiculo(@PathVariable UUID id) {
+    public ResponseEntity<MensagemResponse> deletarVeiculo(@PathVariable UUID id) {
         try {
             veiculoService.excluirVeiculo(id);
-            return ResponseEntity.ok("Veículo deletado com sucesso.");
+            return ResponseEntity.ok(new MensagemResponse("Veículo deletado com sucesso."));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MensagemResponse(e.getMessage()));
         }
     }
 }

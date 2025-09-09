@@ -4,6 +4,7 @@ import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteCreateDT
 import com.projetos.omnilink.desafiotecnico.entities.dto.cliente.ClienteUpdateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.services.ClienteService;
+import com.projetos.omnilink.desafiotecnico.utils.MensagemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -24,37 +25,37 @@ public class ClienteController {
 
     @PostMapping("/criarCliente")
     @Operation(summary = "Cadastrar cliente", description = "Cadastra um novo cliente que ainda não possua cadastro")
-    public ResponseEntity<Object> criarCliente(@RequestBody ClienteCreateDTO clienteDTO) {
+    public ResponseEntity<MensagemResponse> criarCliente(@RequestBody ClienteCreateDTO clienteDTO) {
         clienteService.criarCliente(clienteDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Cliente salvo com sucesso!");
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MensagemResponse("Cliente salvo com sucesso!"));
     }
 
     @PutMapping("/alterarCliente/{id}")
     @Operation(summary = "Atualizar cliente", description = "Atualizar dados do cliente")
-    public ResponseEntity<?> editarCliente(@PathVariable UUID id, @RequestBody ClienteUpdateDTO clienteUpdateDTO) {
+    public ResponseEntity<MensagemResponse> editarCliente(@PathVariable UUID id, @RequestBody ClienteUpdateDTO clienteUpdateDTO) {
         try {
             clienteService.editarCliente(id, clienteUpdateDTO);
-            return ResponseEntity.ok("Cliente atualizado com sucesso.");
+            return ResponseEntity.ok(new MensagemResponse("Cliente atualizado com sucesso."));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MensagemResponse(e.getMessage()));
         }
     }
 
     @GetMapping("/buscarCliente/{cpf}")
     @Operation(summary = "Buscar cliente", description = "Busca o cliente através do CPF informado")
-    public ResponseEntity<Object> buscarCliente(@PathVariable String cpf) {
+    public ResponseEntity<Cliente> buscarCliente(@PathVariable String cpf) {
         try {
             Cliente cliente = clienteService.buscarClientePorCpf(cpf);
             return ResponseEntity.ok(cliente);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     @GetMapping("/listarClientes")
     @Operation(summary = "Listar clientes", description = "Lista todos os clientes cadastrados no sistema")
-    public ResponseEntity<Object> listarClientes() {
+    public ResponseEntity<List<Cliente>> listarClientes() {
         List<Cliente> clientes = clienteService.listarClientes();
 
         if (clientes.isEmpty()) {
@@ -66,12 +67,12 @@ public class ClienteController {
 
     @DeleteMapping("/deletarCliente/{id}")
     @Operation(summary = "Deletar cliente", description = "Deleta o cliente")
-    public ResponseEntity<Object> deletarCliente(@PathVariable UUID id) {
+    public ResponseEntity<MensagemResponse> deletarCliente(@PathVariable UUID id) {
         try {
             clienteService.excluirCliente(id);
-            return ResponseEntity.ok("Cliente deletado com sucesso.");
+            return ResponseEntity.ok(new MensagemResponse("Cliente deletado com sucesso."));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new MensagemResponse(e.getMessage()));
         }
     }
 }

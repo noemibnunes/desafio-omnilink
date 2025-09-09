@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class VeiculoMapper {
 
-    public Veiculo toEntity(VeiculoCreateDTO dto) {
+    public static Veiculo toEntity(VeiculoCreateDTO dto) {
         return Veiculo.builder()
                 .chassi(dto.getChassi())
                 .marca(dto.getMarca())
@@ -21,7 +21,7 @@ public class VeiculoMapper {
                 .build();
     }
 
-    public void updateVeiculoFromDto(Veiculo veiculo, VeiculoUpdateDTO dto) {
+    public static void updateVeiculoFromDto(Veiculo veiculo, VeiculoUpdateDTO dto) {
         veiculo.setQuilometragem(dto.getQuilometragem());
         veiculo.setObservacoes(dto.getObservacoes());
     }

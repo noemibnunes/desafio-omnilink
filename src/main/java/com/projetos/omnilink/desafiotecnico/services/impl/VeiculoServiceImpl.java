@@ -7,7 +7,6 @@ import com.projetos.omnilink.desafiotecnico.entities.dto.veiculos.VeiculoUpdateD
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.VeiculoNaoEncontradoException;
-import com.projetos.omnilink.desafiotecnico.mappers.VeiculoMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.VeiculoRepository;
 import com.projetos.omnilink.desafiotecnico.services.VeiculoService;
@@ -18,17 +17,19 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+import static com.projetos.omnilink.desafiotecnico.mappers.VeiculoMapper.toEntity;
+import static com.projetos.omnilink.desafiotecnico.mappers.VeiculoMapper.updateVeiculoFromDto;
+
 @Service
 @RequiredArgsConstructor
 public class VeiculoServiceImpl implements VeiculoService {
 
     private final VeiculoRepository veiculoRepository;
-    private final VeiculoMapper veiculoMapper;
     private final ClienteRepository clienteRepository;
 
     @Override
     public void criarVeiculo(VeiculoCreateDTO veiculoDTO) {
-        Veiculo veiculo = veiculoMapper.toEntity(veiculoDTO);
+        Veiculo veiculo = toEntity(veiculoDTO);
 
         VeiculoValidator.verificarDadosVeiculo(veiculo);
         verificarDuplicadoPorChassi(veiculo.getChassi());
@@ -40,7 +41,8 @@ public class VeiculoServiceImpl implements VeiculoService {
         Veiculo veiculo = veiculoRepository.findById(id)
                 .orElseThrow(() -> new VeiculoNaoEncontradoException("Veículo não encontrado."));
 
-        veiculoMapper.updateVeiculoFromDto(veiculo, dto);
+        updateVeiculoFromDto(veiculo, dto);
+        VeiculoValidator.verificarDadosVeiculo(veiculo);
         veiculoRepository.save(veiculo);
     }
 
@@ -49,7 +51,7 @@ public class VeiculoServiceImpl implements VeiculoService {
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
 
-        Veiculo veiculo = veiculoMapper.toEntity(veiculoDTO);
+        Veiculo veiculo = toEntity(veiculoDTO);
 
         VeiculoValidator.verificarDadosVeiculo(veiculo);
         verificarDuplicadoPorChassi(veiculoDTO.getChassi());

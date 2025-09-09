@@ -1,13 +1,13 @@
 package com.projetos.omnilink.desafiotecnico.services.impl;
 
-import com.projetos.omnilink.desafiotecnico.entities.Cliente;
 import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioCreateDTO;
 import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioUpdateDTO;
+import com.projetos.omnilink.desafiotecnico.entities.dto.usuario.UsuarioUpdateSenhaDTO;
 import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
+import com.projetos.omnilink.desafiotecnico.exceptions.DadosInvalidosException;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
-import com.projetos.omnilink.desafiotecnico.mappers.UsuarioMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.UsuarioRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Description;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -25,18 +24,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class UsuarioServiceImplTest {
 
     @InjectMocks
     private UsuarioServiceImpl usuarioService;
-
-    @Mock
-    private UsuarioMapper usuarioMapper;
 
     @Mock
     private UsuarioRepository usuarioRepository;
@@ -47,6 +42,85 @@ class UsuarioServiceImplTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    @DisplayName("Deve salvar um novo usuário com sucesso")
+    public void deveSalvarNovoUsuario() {
+        UsuarioCreateDTO dto = getUsuarioCreateDTO();
+        Usuario usuario = getUsuario();
+
+        when(usuarioRepository.save(Mockito.any(Usuario.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(passwordEncoder.encode(Mockito.anyString())).thenReturn("senhaHash");
+
+        usuarioService.criarUsuario(dto);
+
+        verify(usuarioRepository, Mockito.times(1)).save(Mockito.any(Usuario.class));
+
+        assertEquals("user teste", usuario.getNome());
+        assertEquals("email@gmail.com", usuario.getEmail());
+        assertEquals("00000000000", usuario.getCpf());
+    }
+
+    @Test
+    @DisplayName("Deve atualizar informações do usuário")
+    public void deveAtualizarUsuario() {
+        Usuario usuario = getUsuario();
+        UsuarioUpdateDTO dto = getUsuarioUpdateDto();
+
+        when(usuarioRepository.findById(usuario.getId()))
+                .thenReturn(Optional.of(usuario));
+
+        when(usuarioRepository.save(Mockito.any(Usuario.class)))
+                .thenAnswer(i -> i.getArguments()[0]);
+
+        usuarioService.editarUsuario(usuario.getId(), dto);
+
+        verify(usuarioRepository, Mockito.times(1)).save(usuario);
+
+        assertEquals(dto.getNome(), usuario.getNome());
+        assertEquals(dto.getEmail(), usuario.getEmail());
+        assertEquals("00000000000", usuario.getCpf());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao atualizar senha menor que 8 caracteres")
+    public void deveFalharAoAtualizarSenhaCurta() {
+        Usuario usuario = getUsuario();
+        UsuarioUpdateSenhaDTO dto = new UsuarioUpdateSenhaDTO();
+        dto.setSenha("1234");
+
+        when(usuarioRepository.findById(usuario.getId()))
+                .thenReturn(Optional.of(usuario));
+
+        assertThrows(DadosInvalidosException.class, () -> {
+            usuarioService.editarSenhaUsuario(usuario.getId(), dto);
+        });
+
+        verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    @DisplayName("Deve atualizar senha do usuário")
+    public void deveAtualizarSenhaUsuario() {
+        Usuario usuario = getUsuario();
+        UsuarioUpdateSenhaDTO dto = new UsuarioUpdateSenhaDTO();
+        dto.setSenha("1231aaee");
+
+        when(usuarioRepository.findById(usuario.getId()))
+                .thenReturn(Optional.of(usuario));
+
+        when(passwordEncoder.encode("1231aaee"))
+                .thenReturn("senhaHash");
+
+        when(usuarioRepository.save(Mockito.any(Usuario.class)))
+                .thenAnswer(i -> i.getArguments()[0]);
+
+        usuarioService.editarSenhaUsuario(usuario.getId(), dto);
+
+        verify(usuarioRepository, Mockito.times(1)).save(usuario);
+
+        assertEquals("senhaHash", usuario.getSenha_hash());
     }
 
     @Test
@@ -81,7 +155,7 @@ class UsuarioServiceImplTest {
 
         Usuario usuario = usuarioService.buscarUsuarioPorCpf(usuarioMock.getCpf());
 
-        Assertions.assertEquals(usuarioMock.getCpf(), usuario.getCpf());
+        assertEquals(usuarioMock.getCpf(), usuario.getCpf());
 
         verify(usuarioRepository, Mockito.times(1)).findByCpf(usuarioMock.getCpf());
     }
@@ -109,7 +183,7 @@ class UsuarioServiceImplTest {
                 () -> usuarioService.verificarDuplicadoPorCpf(cpf)
         );
 
-        Assertions.assertEquals("Já existe um usuário com esse CPF informado.", exception.getMessage());
+        assertEquals("Já existe um usuário com esse CPF informado.", exception.getMessage());
     }
 
     @Test
@@ -149,7 +223,7 @@ class UsuarioServiceImplTest {
                 .email("email@gmail.com")
                 .cpf("00000000000")
                 .role(RoleEnum.FUNCIONARIO)
-                .senha_hash(passwordEncoder.encode("test3"))
+                .senha_hash("test@ndoUs3r")
                 .build();
     }
 

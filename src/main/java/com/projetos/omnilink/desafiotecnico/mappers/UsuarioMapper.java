@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UsuarioMapper {
 
-    public Usuario toEntity(UsuarioCreateDTO dto) {
+    public static Usuario toEntity(UsuarioCreateDTO dto) {
         return Usuario.builder()
                 .nome(dto.getNome())
                 .cpf(dto.getCpf())
@@ -17,7 +17,7 @@ public class UsuarioMapper {
                 .build();
     }
 
-    public void updateUsurioFromDto(Usuario usuario, UsuarioUpdateDTO dto) {
+    public static void updateUsuarioFromDto(Usuario usuario, UsuarioUpdateDTO dto) {
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
         usuario.setRole(dto.getRole());

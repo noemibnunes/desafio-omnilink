@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClienteMapper {
 
-    public Cliente toEntity(ClienteCreateDTO dto) {
+    public static Cliente toEntity(ClienteCreateDTO dto) {
         return Cliente.builder()
                 .nome(dto.getNome())
                 .email(dto.getEmail())
@@ -18,13 +18,13 @@ public class ClienteMapper {
                 .build();
     }
 
-    public void updateClienteFromDto(Cliente cliente, ClienteUpdateDTO dto) {
+    public static void updateClienteFromDto(Cliente cliente, ClienteUpdateDTO dto) {
         cliente.setNome(dto.getNome());
         cliente.setEmail(dto.getEmail());
         cliente.setDataNascimento(dto.getDataNascimento());
     }
 
-    public void updateUsuarioFromCliente(Usuario usuario, ClienteUpdateDTO dto) {
+    public static void updateUsuarioFromCliente(Usuario usuario, ClienteUpdateDTO dto) {
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
     }

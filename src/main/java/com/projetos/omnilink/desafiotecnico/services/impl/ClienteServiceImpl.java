@@ -7,7 +7,6 @@ import com.projetos.omnilink.desafiotecnico.entities.Usuario;
 import com.projetos.omnilink.desafiotecnico.enums.RoleEnum;
 import com.projetos.omnilink.desafiotecnico.exceptions.RegistroDuplicadoException;
 import com.projetos.omnilink.desafiotecnico.exceptions.UsuarioNaoEncontradoException;
-import com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper;
 import com.projetos.omnilink.desafiotecnico.repositories.ClienteRepository;
 import com.projetos.omnilink.desafiotecnico.repositories.UsuarioRepository;
 import com.projetos.omnilink.desafiotecnico.services.ClienteService;
@@ -20,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+import static com.projetos.omnilink.desafiotecnico.mappers.ClienteMapper.*;
+
 @Service
 @RequiredArgsConstructor
 public class ClienteServiceImpl implements ClienteService {
@@ -27,11 +28,10 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ClienteMapper clienteMapper;
 
     @Override
     public void criarCliente(ClienteCreateDTO clienteDTO) {
-        Cliente cliente = clienteMapper.toEntity(clienteDTO);
+        Cliente cliente = toEntity(clienteDTO);
 
         cliente.setCpf(Utils.normalizarCpf(cliente.getCpf()));
 
@@ -44,6 +44,7 @@ public class ClienteServiceImpl implements ClienteService {
                 .cliente(clienteSalvo)
                 .nome(clienteSalvo.getNome())
                 .email(clienteSalvo.getEmail())
+                .cpf(clienteSalvo.getCpf())
                 .senha_hash(passwordEncoder.encode(clienteSalvo.getCpf()))
                 .role(RoleEnum.CLIENTE)
                 .build();
@@ -51,7 +52,6 @@ public class ClienteServiceImpl implements ClienteService {
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
         clienteSalvo.setUsuario(usuarioSalvo);
-        clienteRepository.save(clienteSalvo);
     }
 
     @Override
@@ -59,12 +59,13 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado."));
 
-        clienteMapper.updateClienteFromDto(cliente, dto);
+        updateClienteFromDto(cliente, dto);
+        ClienteValidator.verificarDadosCliente(cliente);
         clienteRepository.save(cliente);
 
         Usuario usuario = cliente.getUsuario();
         if (usuario != null) {
-            clienteMapper.updateUsuarioFromCliente(usuario, dto);
+            updateUsuarioFromCliente(usuario, dto);
             usuarioRepository.save(usuario);
         }
     }
